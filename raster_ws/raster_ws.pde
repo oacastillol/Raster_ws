@@ -67,18 +67,47 @@ void draw() {
   popStyle();
   popMatrix();
 }
-
+float edgeFunction(float ax, float ay,float bx,float by,float cx,float cy){
+  return (cx- ax) * (by - ay) - (cy - ay) * (bx - ax);
+}
 // Implement this function to rasterize the triangle.
 // Coordinates are given in the frame system which has a dimension of 2^n
 void triangleRaster() {
   // frame.coordinatesOf converts from world to frame
   // here we convert v1 to illustrate the idea
-  if (debug) {
-    pushStyle();
-    stroke(255, 255, 0, 125);
-    point(round(frame.coordinatesOf(v1).x()), round(frame.coordinatesOf(v1).y()));
-    popStyle();
+  // coordenadas en la posicion x de cada uno de los tres vectores
+  float x1 = frame.coordinatesOf(v1).x();
+  float x2 = frame.coordinatesOf(v2).x();
+  float x3 = frame.coordinatesOf(v3).x();
+  //coordenadas en la posicion y de cada uno de los tres vectores
+  float y1 = frame.coordinatesOf(v1).y();
+  float y2 = frame.coordinatesOf(v2).y();
+  float y3 = frame.coordinatesOf(v3).y();
+  float E12, E23, E31,Area,R,G,B;
+  Area = edgeFunction(x1,y1,x2,y2,x3,y3);
+  for(int i=-round(pow(2,n-1)); i<pow(2,n-1);i++){
+     for(int j=-round(pow(2,n)/2); j<round(pow(2,n)/2);j++){
+       E12 = edgeFunction(x1,y1,x2,y2,i+0.5,j+0.5);
+       E23 = edgeFunction(x2,y2,x3,y3,i+0.5,j+0.5);
+       E31 = edgeFunction(x3,y3,x1,y1,i+0.5,j+0.5);
+       if((E12>=0 && E23>=0 && E31>=0)||(E12<=0 && E23<=0 && E31<=0)){
+         R = E12 /Area;
+         G = E23 /Area;
+         B = E31 /Area;
+         pushStyle();
+         colorMode(RGB, 1);
+         noStroke();
+         fill(R,G,B);
+         rect(i,j,1,1);
+         popStyle();
+         if (debug) {
+            println(R+" "+G+" "+B);
+            
+         }
+        }        
+      }
   }
+  
 }
 
 void randomizeTriangle() {
